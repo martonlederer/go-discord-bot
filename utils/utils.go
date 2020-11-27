@@ -4,7 +4,7 @@ import "github.com/bwmarrin/discordgo"
 
 type ICommand struct {
 	Name, Description string
-	Command           func(*discordgo.Session, *discordgo.MessageCreate)
+	Command           func([]string, *discordgo.Session, *discordgo.MessageCreate)
 }
 
 type Config struct {

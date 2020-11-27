@@ -9,7 +9,7 @@ import (
 
 var InfoCommand = utils.ICommand{Name: "serverinfo", Description: "Return server information", Command: infoCommand}
 
-func infoCommand(s *discordgo.Session, message *discordgo.MessageCreate) {
+func infoCommand(args []string, s *discordgo.Session, message *discordgo.MessageCreate) {
 	s.RequestGuildMembers(message.GuildID, "", 0, true)
 
 	embed := &discordgo.MessageEmbed{Title: "Server info", Color: 0x34b4eb}

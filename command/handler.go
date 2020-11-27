@@ -13,6 +13,7 @@ import (
 
 var allCommands = []utils.ICommand{
 	commands.InfoCommand,
+	commands.RoleCommand,
 }
 
 func CommandHandler(s *discordgo.Session, message *discordgo.MessageCreate, config *utils.Config) {
@@ -38,7 +39,7 @@ func CommandHandler(s *discordgo.Session, message *discordgo.MessageCreate, conf
 	// but if I add it, it throws
 	// an initialization loop error
 	if commandArgs[0] == "help" {
-		helpCommand(s, message, config)
+		helpCommand(commandArgs, s, message, config)
 		return
 	}
 
@@ -50,7 +51,7 @@ func CommandHandler(s *discordgo.Session, message *discordgo.MessageCreate, conf
 	}
 
 	// execute command
-	command.Command(s, message)
+	command.Command(commandArgs, s, message)
 }
 
 // find a command from the command list
@@ -64,7 +65,7 @@ func findCommand(cmd string) (command utils.ICommand, err error) {
 }
 
 // list all commands
-func helpCommand(s *discordgo.Session, message *discordgo.MessageCreate, config *utils.Config) {
+func helpCommand(args []string, s *discordgo.Session, message *discordgo.MessageCreate, config *utils.Config) {
 	embed := &discordgo.MessageEmbed{Title: "Help", Color: 0x4ceb34}
 
 	for _, c := range allCommands {
