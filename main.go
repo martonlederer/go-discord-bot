@@ -1,17 +1,19 @@
 package main
 
 import (
-	"github.com/bwmarrin/discordgo"
 	"fmt"
+	"io/ioutil"
+	"log"
 	"os"
 	"os/signal"
 	"syscall"
-	"regexp"
-	"io/ioutil"
-	"log"
+
+	"github.com/bwmarrin/discordgo"
+
+	"go-discord-bot/command"
 )
 
-func main () {
+func main() {
 	token := getToken()
 	bot, err := discordgo.New("Bot " + token)
 
@@ -27,7 +29,7 @@ func main () {
 	}
 
 	// commands
-	bot.AddHandler(commandHandler)
+	bot.AddHandler(command.CommandHandler)
 
 	// don't shut down
 	sc := make(chan os.Signal, 1)
@@ -36,28 +38,11 @@ func main () {
 	bot.Close()
 }
 
-func ready (s *discordgo.Session, event *discordgo.Ready) {
+func ready(s *discordgo.Session, event *discordgo.Ready) {
 	fmt.Println("ready")
 }
 
-func commandHandler (s *discordgo.Session, message *discordgo.MessageCreate) {
-
-	if message.Author.ID == s.State.User.ID {
-		return
-	}
-
-	// does it start with ! (prefix)
-	matched, _ := regexp.Match(`^!`, []byte(message.Content))
-
-	if !matched {
-		return
-	}
-
-	s.ChannelMessageSend(message.ChannelID, "You said " + message.Content)
-
-}
-
-func getToken () string {
+func getToken() string {
 	content, err := ioutil.ReadFile("token.txt")
 	if err != nil {
 		log.Fatal(err)
