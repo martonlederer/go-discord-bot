@@ -11,24 +11,23 @@ import (
 	"github.com/bwmarrin/discordgo"
 )
 
-var prefix string = "!"
 var allCommands = []utils.ICommand{commands.HelpCommand}
 
-func CommandHandler(s *discordgo.Session, message *discordgo.MessageCreate) {
+func CommandHandler(s *discordgo.Session, message *discordgo.MessageCreate, config *utils.Config) {
 	// don't reply to ourselves
 	if message.Author.ID == s.State.User.ID {
 		return
 	}
 
 	// does it start with ! (prefix)
-	matched, _ := regexp.Match(`^`+prefix, []byte(message.Content))
+	matched, _ := regexp.Match(`^`+config.Prefix, []byte(message.Content))
 
 	if !matched {
 		return
 	}
 
 	// parse command
-	withoutPrefix := strings.Replace(message.Content, "!", "", 1)
+	withoutPrefix := strings.Replace(message.Content, config.Prefix, "", 1)
 	commandArgs := strings.Split(withoutPrefix, " ")
 	command, err := findCommand(commandArgs[0])
 
