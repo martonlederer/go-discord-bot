@@ -11,7 +11,9 @@ import (
 	"github.com/bwmarrin/discordgo"
 )
 
-var allCommands = []utils.ICommand{commands.InfoCommand}
+var allCommands = []utils.ICommand{
+	commands.InfoCommand,
+}
 
 func CommandHandler(s *discordgo.Session, message *discordgo.MessageCreate, config *utils.Config) {
 	// don't reply to ourselves
@@ -47,9 +49,11 @@ func CommandHandler(s *discordgo.Session, message *discordgo.MessageCreate, conf
 		return
 	}
 
+	// execute command
 	command.Command(s, message)
 }
 
+// find a command from the command list
 func findCommand(cmd string) (command utils.ICommand, err error) {
 	for _, c := range allCommands {
 		if c.Name == cmd {
@@ -59,6 +63,7 @@ func findCommand(cmd string) (command utils.ICommand, err error) {
 	return command, errors.New("Could not find command")
 }
 
+// list all commands
 func helpCommand(s *discordgo.Session, message *discordgo.MessageCreate, config *utils.Config) {
 	embed := &discordgo.MessageEmbed{Title: "Help", Color: 0x4ceb34}
 
