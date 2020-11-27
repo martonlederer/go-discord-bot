@@ -1,22 +1,20 @@
 package command
 
 import (
+	"errors"
 	"regexp"
 	"strings"
 
 	"go-discord-bot/command/commands"
+	"go-discord-bot/utils"
 
 	"github.com/bwmarrin/discordgo"
 )
 
 var prefix string = "!"
+var allCommands = []utils.ICommand{commands.HelpCommand}
 
 func CommandHandler(s *discordgo.Session, message *discordgo.MessageCreate) {
-
-	/* Commands */
-	allCommands := make(map[string]func(*discordgo.Session, *discordgo.MessageCreate))
-	allCommands["help"] = commands.HelpCommand
-
 	// don't reply to ourselves
 	if message.Author.ID == s.State.User.ID {
 		return
@@ -32,12 +30,21 @@ func CommandHandler(s *discordgo.Session, message *discordgo.MessageCreate) {
 	// parse command
 	withoutPrefix := strings.Replace(message.Content, "!", "", 1)
 	commandArgs := strings.Split(withoutPrefix, " ")
-	cmd := allCommands[commandArgs[0]]
+	command, err := findCommand(commandArgs[0])
 
-	if cmd == nil {
-		s.ChannelMessageSend(message.ChannelID, "Could not find command")
+	if err != nil {
+		s.ChannelMessageSend(message.ChannelID, err.Error())
 		return
 	}
 
-	cmd(s, message)
+	command.Command(s, message)
+}
+
+func findCommand(cmd string) (command utils.ICommand, err error) {
+	for _, c := range allCommands {
+		if c.Name == cmd {
+			return c, nil
+		}
+	}
+	return command, errors.New("Could not find command")
 }
