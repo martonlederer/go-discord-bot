@@ -52,8 +52,6 @@ func main() {
 	var config *utils.Config
 	json.Unmarshal(byteValue, &config)
 
-	fmt.Println(config)
-
 	// commands
 	bot.AddHandler(func(s *discordgo.Session, message *discordgo.MessageCreate) {
 		command.CommandHandler(s, message, config)

@@ -11,7 +11,7 @@ import (
 	"github.com/bwmarrin/discordgo"
 )
 
-var allCommands = []utils.ICommand{commands.HelpCommand}
+var allCommands = []utils.ICommand{commands.InfoCommand}
 
 func CommandHandler(s *discordgo.Session, message *discordgo.MessageCreate, config *utils.Config) {
 	// don't reply to ourselves
@@ -29,6 +29,17 @@ func CommandHandler(s *discordgo.Session, message *discordgo.MessageCreate, conf
 	// parse command
 	withoutPrefix := strings.Replace(message.Content, config.Prefix, "", 1)
 	commandArgs := strings.Split(withoutPrefix, " ")
+
+	// the help command is not
+	// added to the commands list
+	// i have to figure this out
+	// but if I add it, it throws
+	// an initialization loop error
+	if commandArgs[0] == "help" {
+		helpCommand(s, message, config)
+		return
+	}
+
 	command, err := findCommand(commandArgs[0])
 
 	if err != nil {
@@ -46,4 +57,14 @@ func findCommand(cmd string) (command utils.ICommand, err error) {
 		}
 	}
 	return command, errors.New("Could not find command")
+}
+
+func helpCommand(s *discordgo.Session, message *discordgo.MessageCreate, config *utils.Config) {
+	embed := &discordgo.MessageEmbed{Title: "Help", Color: 0x4ceb34}
+
+	for _, c := range allCommands {
+		embed.Fields = append(embed.Fields, &discordgo.MessageEmbedField{Name: config.Prefix + c.Name, Value: c.Description})
+	}
+
+	s.ChannelMessageSendEmbed(message.ChannelID, embed)
 }
