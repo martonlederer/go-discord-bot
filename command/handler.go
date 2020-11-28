@@ -14,6 +14,7 @@ import (
 var allCommands = []utils.ICommand{
 	commands.InfoCommand,
 	commands.RoleCommand,
+	commands.KickCommand,
 }
 
 func CommandHandler(s *discordgo.Session, message *discordgo.MessageCreate, config *utils.Config) {

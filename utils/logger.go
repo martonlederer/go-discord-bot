@@ -1,12 +1,18 @@
 package utils
 
-import "github.com/bwmarrin/discordgo"
+import (
+	"fmt"
+
+	"github.com/bwmarrin/discordgo"
+)
 
 // error
 func LogError(log string, s *discordgo.Session, message *discordgo.MessageCreate) {
 	embed := &discordgo.MessageEmbed{Title: log, Color: 0xff0000}
 
 	s.ChannelMessageSendEmbed(message.ChannelID, embed)
+	// also print to console
+	fmt.Println("Error: " + log)
 }
 
 // warning
