@@ -17,6 +17,7 @@ var allCommands = []utils.ICommand{
 	commands.RoleCommand,
 	commands.KickCommand,
 	commands.BanCommand,
+	commands.UnbanCommand,
 }
 
 func CommandHandler(s *discordgo.Session, message *discordgo.MessageCreate, config *utils.Config) {
