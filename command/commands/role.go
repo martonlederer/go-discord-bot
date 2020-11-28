@@ -1,6 +1,7 @@
 package commands
 
 import (
+	"fmt"
 	"go-discord-bot/utils"
 
 	"github.com/bwmarrin/discordgo"
@@ -13,15 +14,20 @@ func roleCommand(args []string, s *discordgo.Session, message *discordgo.Message
 		s.ChannelMessageSend(message.ChannelID, "**Error:** Please supply exactly 2 arguments for this command!")
 		return
 	}
-	// s.GuildMemberRoleAdd(message.GuildID, message.Member.User.ID, )
-	// server, _ := s.Guild(message.GuildID)
+	if len(message.Mentions) > 1 {
+		s.ChannelMessageSend(message.ChannelID, "**Error:** Please only mention one user!")
+		return
+	}
 
-	for _, u := range message.Mentions {
-		for _, r := range message.MentionRoles {
-			err := s.GuildMemberRoleAdd(message.GuildID, u.ID, r)
+	guildRoles, _ := s.GuildRoles(message.GuildID)
+
+	for _, rol := range guildRoles {
+		fmt.Println(rol)
+		if rol.Name == args[2] {
+			err := s.GuildMemberRoleAdd(message.GuildID, message.Mentions[0].ID, rol.ID)
 
 			if err != nil {
-				s.ChannelMessageSend(message.ChannelID, "**Error:** Failed to add role "+r+" for "+u.Username+": "+err.Error())
+				s.ChannelMessageSend(message.ChannelID, "**Error:** Failed to add role "+rol.Name+" for "+message.Mentions[0].Username+": "+err.Error())
 			} else {
 				s.ChannelMessageSend(message.ChannelID, "Modified roles for "+args[1])
 			}
