@@ -1,8 +1,8 @@
 package commands
 
 import (
-	"fmt"
 	"go-discord-bot/utils"
+	"sort"
 
 	"github.com/bwmarrin/discordgo"
 )
@@ -14,22 +14,42 @@ func roleCommand(args []string, s *discordgo.Session, message *discordgo.Message
 		s.ChannelMessageSend(message.ChannelID, "**Error:** Please supply exactly 2 arguments for this command!")
 		return
 	}
-	if len(message.Mentions) > 1 {
-		s.ChannelMessageSend(message.ChannelID, "**Error:** Please only mention one user!")
+	if len(message.Mentions) != 1 {
+		s.ChannelMessageSend(message.ChannelID, "**Error:** Please mention exactly one user!")
 		return
 	}
 
 	guildRoles, _ := s.GuildRoles(message.GuildID)
 
 	for _, rol := range guildRoles {
-		fmt.Println(rol)
 		if rol.Name == args[2] {
-			err := s.GuildMemberRoleAdd(message.GuildID, message.Mentions[0].ID, rol.ID)
-
+			member, err := s.GuildMember(message.GuildID, message.Mentions[0].ID)
 			if err != nil {
-				s.ChannelMessageSend(message.ChannelID, "**Error:** Failed to add role "+rol.Name+" for "+message.Mentions[0].Username+": "+err.Error())
+				s.ChannelMessageSend(message.ChannelID, "**Error:** Failed to find "+message.Mentions[0].Username+": "+err.Error())
+				return
+			}
+
+			// does the user have the role
+			roleIndex := sort.SearchStrings(member.Roles, rol.ID)
+
+			if roleIndex != len(member.Roles) {
+				err := s.GuildMemberRoleRemove(message.GuildID, member.User.ID, rol.ID)
+
+				if err != nil {
+					s.ChannelMessageSend(message.ChannelID, "**Error:** Failed to modify roles ("+rol.Name+") for "+message.Mentions[0].Username+": "+err.Error())
+				} else {
+					s.ChannelMessageSend(message.ChannelID, "Removed role from *"+message.Mentions[0].Username+"*")
+				}
+				return
 			} else {
-				s.ChannelMessageSend(message.ChannelID, "Modified roles for "+args[1])
+				err := s.GuildMemberRoleAdd(message.GuildID, member.User.ID, rol.ID)
+
+				if err != nil {
+					s.ChannelMessageSend(message.ChannelID, "**Error:** Failed to modify roles ("+rol.Name+") for "+message.Mentions[0].Username+": "+err.Error())
+				} else {
+					s.ChannelMessageSend(message.ChannelID, "Added role for *"+message.Mentions[0].Username+"*")
+				}
+				return
 			}
 		}
 	}
