@@ -46,7 +46,7 @@ func CommandHandler(s *discordgo.Session, message *discordgo.MessageCreate, conf
 	command, err := findCommand(commandArgs[0])
 
 	if err != nil {
-		s.ChannelMessageSend(message.ChannelID, err.Error())
+		utils.LogError(err.Error(), s, message)
 		return
 	}
 
