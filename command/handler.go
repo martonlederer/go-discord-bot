@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"go-discord-bot/command/commands"
+	"go-discord-bot/log"
 	"go-discord-bot/utils"
 
 	"github.com/bwmarrin/discordgo"
@@ -47,7 +48,7 @@ func CommandHandler(s *discordgo.Session, message *discordgo.MessageCreate, conf
 	command, err := findCommand(commandArgs[0])
 
 	if err != nil {
-		utils.LogError(err.Error(), s, message)
+		log.Error(err.Error(), s, message)
 		return
 	}
 

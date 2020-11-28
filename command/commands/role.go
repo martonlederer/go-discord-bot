@@ -1,6 +1,7 @@
 package commands
 
 import (
+	"go-discord-bot/log"
 	"go-discord-bot/utils"
 	"sort"
 
@@ -11,11 +12,11 @@ var RoleCommand = utils.ICommand{Name: "role", Description: "Toggle a role for a
 
 func roleCommand(args []string, s *discordgo.Session, message *discordgo.MessageCreate) {
 	if len(args) != 3 {
-		utils.LogError("Please supply exactly 2 arguments for this command!", s, message)
+		log.Error("Please supply exactly 2 arguments for this command!", s, message)
 		return
 	}
 	if len(message.Mentions) != 1 {
-		utils.LogError("Please mention exactly one user!", s, message)
+		log.Error("Please mention exactly one user!", s, message)
 		return
 	}
 
@@ -25,7 +26,7 @@ func roleCommand(args []string, s *discordgo.Session, message *discordgo.Message
 		if rol.Name == args[2] {
 			member, err := s.GuildMember(message.GuildID, message.Mentions[0].ID)
 			if err != nil {
-				utils.LogError("Failed to find user "+message.Mentions[0].Username, s, message)
+				log.Error("Failed to find user "+message.Mentions[0].Username, s, message)
 				return
 			}
 
@@ -36,17 +37,17 @@ func roleCommand(args []string, s *discordgo.Session, message *discordgo.Message
 				err := s.GuildMemberRoleRemove(message.GuildID, member.User.ID, rol.ID)
 
 				if err != nil {
-					utils.LogError("**Error:** Failed to modify roles ("+rol.Name+") for "+message.Mentions[0].Username, s, message)
+					log.Error("**Error:** Failed to modify roles ("+rol.Name+") for "+message.Mentions[0].Username, s, message)
 				} else {
-					utils.LogWarning("Removed role from "+message.Mentions[0].Username, s, message)
+					log.Warning("Removed role from "+message.Mentions[0].Username, s, message)
 				}
 			} else {
 				err := s.GuildMemberRoleAdd(message.GuildID, member.User.ID, rol.ID)
 
 				if err != nil {
-					utils.LogError("**Error:** Failed to modify roles ("+rol.Name+") for "+message.Mentions[0].Username, s, message)
+					log.Error("**Error:** Failed to modify roles ("+rol.Name+") for "+message.Mentions[0].Username, s, message)
 				} else {
-					utils.LogSuccess("Added role for "+message.Mentions[0].Username, s, message)
+					log.Success("Added role for "+message.Mentions[0].Username, s, message)
 				}
 			}
 		}
